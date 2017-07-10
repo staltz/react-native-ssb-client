@@ -6,7 +6,7 @@
   "typings": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git@github.com:staltz/react-native-ssb-client.git"
+    "url": "git@github.com:ssbc/react-native-ssb-client.git"
   },
   "scripts": {
     "compile": "tsc",
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "path": "0.12.x",
-    "process-shim": "git://github.com/staltz/react-native-ssb-client.git#process-shim",
+    "process-shim": "git://github.com/ssbc/react-native-ssb-client.git#process-shim",
     "react-native-crypto": "^2.0.2",
     "react-native-fs": "2.3.x",
     "react-native-os": "^1.1.0",
