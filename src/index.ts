@@ -94,7 +94,7 @@ const manifest = {
   }
 };
 
-export function fetchKeys(config: { path: string }): Promise<any> {
+function fetchKeys(config: { path: string }): Promise<any> {
   const keysPath = path.join(config.path, "secret");
   return RNFS.exists(keysPath).then((exists: boolean) => {
     if (exists) {
@@ -111,9 +111,16 @@ export function fetchKeys(config: { path: string }): Promise<any> {
   });
 }
 
-export default function ssbClient(cb: Callback<SBot>): void;
-export default function ssbClient(opts: object, cb: Callback<SBot>): void;
-export default function ssbClient(
+export type SSBClientFunction = {
+  (cb: Callback<SBot>): void;
+  (opts: object, cb: Callback<SBot>): void;
+  (keys?: object | null, opts?: object | null, cb?: Callback<SBot>): void;
+  fetchKeys(config: { path: string }): Promise<any>;
+};
+
+function ssbClient(cb: Callback<SBot>): void;
+function ssbClient(opts: object, cb: Callback<SBot>): void;
+function ssbClient(
   keys?: object | null,
   opts?: object | null,
   cb?: Callback<SBot>
@@ -143,3 +150,7 @@ export default function ssbClient(
     lowerSSBClient(actualKeys, config, cb);
   });
 }
+
+(ssbClient as SSBClientFunction).fetchKeys = fetchKeys;
+
+module.exports = ssbClient as SSBClientFunction;
