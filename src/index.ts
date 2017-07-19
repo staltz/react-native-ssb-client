@@ -2,6 +2,7 @@
 (global as any).__dirname = "/";
 (global as any).__filename = "";
 require("process");
+(global as any).Buffer = require("buffer").Buffer;
 // imports
 const lowerSSBClient = require("ssb-client");
 const ssbKeys = require("ssb-keys");
