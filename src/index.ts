@@ -94,6 +94,23 @@ const manifest = {
   }
 };
 
+export function fetchKeys(config: { path: string }): Promise<any> {
+  const keysPath = path.join(config.path, "secret");
+  return RNFS.exists(keysPath).then((exists: boolean) => {
+    if (exists) {
+      return RNFS.readFile(keysPath, "ascii").then((fileContents: any) =>
+        JSON.parse(fileContents)
+      );
+    } else {
+      const generatedKeys = ssbKeys.generate();
+      const fileContents = JSON.stringify(generatedKeys, null, 2);
+      return RNFS.writeFile(keysPath, fileContents, "ascii").then(
+        () => generatedKeys
+      );
+    }
+  });
+}
+
 export default function ssbClient(cb: Callback<SBot>): void;
 export default function ssbClient(opts: object, cb: Callback<SBot>): void;
 export default function ssbClient(
@@ -120,22 +137,7 @@ export default function ssbClient(
   }
 
   config.manifest = manifest;
-  const keysPath = path.join(config.path, "secret");
-  const keysPromise = keys
-    ? Promise.resolve(keys)
-    : RNFS.exists(keysPath).then((exists: boolean) => {
-        if (exists) {
-          return RNFS.readFile(keysPath, "ascii").then((fileContents: any) =>
-            JSON.parse(fileContents)
-          );
-        } else {
-          const generatedKeys = ssbKeys.generate();
-          const fileContents = JSON.stringify(generatedKeys, null, 2);
-          return RNFS.writeFile(keysPath, fileContents, "ascii").then(
-            () => generatedKeys
-          );
-        }
-      });
+  const keysPromise = keys ? Promise.resolve(keys) : fetchKeys(config);
 
   keysPromise.then((actualKeys: object) => {
     lowerSSBClient(actualKeys, config, cb);
