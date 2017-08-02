@@ -118,9 +118,9 @@ function fetchKeys(config: { path: string }): Promise<any> {
     } else {
       const generatedKeys = ssbKeys.generate();
       const fileContents = JSON.stringify(generatedKeys, null, 2);
-      return RNFS.writeFile(keysPath, fileContents, "ascii").then(
-        () => generatedKeys
-      );
+      return RNFS.mkdir(config.path)
+        .then(() => RNFS.writeFile(keysPath, fileContents, "ascii"))
+        .then(() => generatedKeys);
     }
   });
 }
