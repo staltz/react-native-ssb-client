@@ -57,10 +57,9 @@ const manifest = {
     reconnect: "sync"
   },
   friends: {
-    all: "async",
-    hops: "async",
+    get: "async",
     createFriendStream: "source",
-    get: "sync"
+    hops: "async"
   },
   replicate: {
     changes: "source",
@@ -80,6 +79,20 @@ const manifest = {
     changes: "source",
     createWants: "source"
   },
+  backlinks: {
+    read: "source"
+  },
+  about: {
+    stream: "source",
+    get: "async"
+  },
+  contacts: {
+    stream: "source",
+    get: "async"
+  },
+  query: {
+    read: "source"
+  },
   invite: {
     create: "async",
     accept: "async",
@@ -90,7 +103,8 @@ const manifest = {
   },
   private: {
     publish: "async",
-    unbox: "sync"
+    unbox: "sync",
+    read: "source"
   }
 };
 
