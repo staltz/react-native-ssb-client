@@ -59,7 +59,8 @@ const manifest = {
   friends: {
     get: "async",
     createFriendStream: "source",
-    hops: "async"
+    hops: "async",
+    stream: "source"
   },
   replicate: {
     changes: "source",
