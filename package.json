@@ -1,6 +1,6 @@
 {
   "name": "react-native-ssb-client",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Secure Scuttlebutt client-side API for React Native apps",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -11,8 +11,10 @@
   "scripts": {
     "compile": "tsc",
     "prepublish": "npm run compile",
-    "install": "propagate-replacement-fields --field=react-native --source=./ --destination=../../ && npm run link",
-    "link": "cd ../../ && react-native link react-native-randombytes && react-native link react-native-crypto && react-native link react-native-fs && react-native link react-native-os && react-native link react-native-tcp",
+    "install":
+      "propagate-replacement-fields --field=react-native --source=./ --destination=../../ && npm run link",
+    "link":
+      "cd ../../ && react-native link react-native-randombytes && react-native link react-native-crypto && react-native link react-native-fs && react-native link react-native-os && react-native link react-native-tcp",
     "prepare": "patch-package"
   },
   "author": "Andre Staltz",
@@ -25,7 +27,8 @@
   "dependencies": {
     "buffer": "3.6.0",
     "path": "0.12.x",
-    "process-shim": "git://github.com/ssbc/react-native-ssb-client.git#process-shim",
+    "process-shim":
+      "git://github.com/ssbc/react-native-ssb-client.git#process-shim",
     "propagate-replacement-fields": "1.1.0",
     "react-native-crypto": "^2.0.2",
     "react-native-fs": "2.3.x",
