@@ -30,10 +30,10 @@
     "process-shim":
       "git://github.com/ssbc/react-native-ssb-client.git#process-shim",
     "propagate-replacement-fields": "1.1.0",
-    "react-native-crypto": "^2.0.2",
+    "react-native-crypto": "2.1.1",
     "react-native-fs": "2.3.x",
     "react-native-os": "^1.1.0",
-    "react-native-randombytes": "2.2.0",
+    "react-native-randombytes": "3.0.0",
     "react-native-tcp": "3.2.x",
     "sodium-browserify-tweetnacl": "^0.2.3",
     "ssb-client": "4.5.x",
