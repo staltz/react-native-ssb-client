@@ -10,8 +10,8 @@
   },
   "scripts": {
     "compile": "tsc",
-    "prepublish": "npm run compile",
-    "prepare":
+    "prepublishOnly": "npm run compile",
+    "install":
       "propagate-replacement-fields --field=react-native --source=$(dirname \"$0\") --destination=$(pwd) && npm run link && patch-package",
     "link":
       "react-native link react-native-randombytes && react-native link react-native-crypto && react-native link react-native-fs && react-native link react-native-os && react-native link react-native-tcp"
