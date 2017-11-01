@@ -11,10 +11,12 @@
   "scripts": {
     "compile": "tsc",
     "prepublishOnly": "npm run compile",
-    "install":
-      "propagate-replacement-fields --field=react-native --source=$(dirname \"$0\") --destination=$(pwd) && npm run link && patch-package",
-    "link":
-      "react-native link react-native-randombytes && react-native link react-native-crypto && react-native link react-native-fs && react-native link react-native-os && react-native link react-native-tcp"
+    "do-propagate":
+      "propagate-replacement-fields --field=react-native --source=$(dirname $(realpath -s $0)) --destination=$(dirname $(realpath -s $0))/../../",
+    "do-patch": "patch-package",
+    "do-link":
+      "cd $(dirname $(realpath -s $0))/../../ && react-native link react-native-randombytes && react-native link react-native-crypto && react-native link react-native-fs && react-native link react-native-os && react-native link react-native-tcp && cd $(dirname $(realpath -s $0))",
+    "install": "npm run do-propagate && npm run do-link && npm run do-patch"
   },
   "author": "Andre Staltz",
   "license": "MIT",
