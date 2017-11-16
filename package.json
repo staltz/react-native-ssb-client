@@ -4,9 +4,10 @@
   "description": "Secure Scuttlebutt client-side API for React Native apps",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "homepage": "https://github.com/ssbc/react-native-ssb-client",
   "repository": {
     "type": "git",
-    "url": "git@github.com:ssbc/react-native-ssb-client.git"
+    "url": "https://github.com/ssbc/react-native-ssb-client"
   },
   "scripts": {
     "compile": "tsc",
