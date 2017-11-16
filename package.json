@@ -11,49 +11,17 @@
   },
   "scripts": {
     "compile": "tsc",
-    "prepublishOnly": "npm run compile",
-    "do-propagate":
-      "propagate-replacement-fields --field=react-native --source=$(dirname $(realpath -s $0)) --destination=$(dirname $(realpath -s $0))/../../",
-    "do-patch": "patch-package",
-    "do-link":
-      "cd $(dirname $(realpath -s $0))/../../ && react-native link react-native-randombytes && react-native link react-native-crypto && react-native link react-native-fs && react-native link react-native-os && react-native link react-native-tcp && cd $(dirname $(realpath -s $0))",
-    "install": "npm run do-propagate && npm run do-link && npm run do-patch"
+    "prepublishOnly": "npm run compile"
   },
   "author": "Andre Staltz",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^8.0.9",
     "patch-package": "^3.2.1",
-    "typescript": "^2.4.1"
+    "typescript": "2.4.x"
   },
   "dependencies": {
-    "buffer": "3.6.0",
-    "path": "0.12.x",
-    "process-shim":
-      "git://github.com/ssbc/react-native-ssb-client.git#process-shim",
-    "propagate-replacement-fields": "1.1.0",
-    "react-native-crypto": "2.1.1",
-    "react-native-fs": "2.3.x",
-    "react-native-os": "^1.1.0",
-    "react-native-randombytes": "3.0.0",
-    "react-native-tcp": "3.2.x",
-    "sodium-browserify-tweetnacl": "^0.2.3",
     "ssb-client": "4.5.x",
-    "ssb-config": "2.2.x",
-    "ssb-keys": "7.0.10",
-    "stream-browserify": "^2.0.1",
-    "url": "0.11.0",
-    "vm-browserify": "^0.0.4"
-  },
-  "react-native": {
-    "crypto": "react-native-crypto",
-    "chloride": "sodium-browserify-tweetnacl",
-    "fs": false,
-    "net": "react-native-tcp",
-    "os": "react-native-os",
-    "stream": "stream-browserify",
-    "process": "process-shim",
-    "url": "url",
-    "vm": "vm-browserify"
+    "ssb-config": "2.2.x"
   }
 }

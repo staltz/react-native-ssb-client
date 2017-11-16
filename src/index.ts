@@ -1,13 +1,4 @@
-// Install globals
-(global as any).__dirname = "/";
-(global as any).__filename = "";
-require("process");
-(global as any).Buffer = require("buffer").Buffer;
-// imports
 const lowerSSBClient = require("ssb-client");
-const ssbKeys = require("ssb-keys");
-const RNFS = require("react-native-fs");
-const path = require("path");
 const createConfig = require("ssb-config/inject");
 
 export type Callback<T> = (err: any, value: T) => void;
@@ -109,28 +100,10 @@ const manifest = {
   }
 };
 
-function fetchKeys(config: { path: string }): Promise<any> {
-  const keysPath = path.join(config.path, "secret");
-  return RNFS.exists(keysPath).then((exists: boolean) => {
-    if (exists) {
-      return RNFS.readFile(keysPath, "ascii").then((fileContents: any) =>
-        JSON.parse(fileContents)
-      );
-    } else {
-      const generatedKeys = ssbKeys.generate();
-      const fileContents = JSON.stringify(generatedKeys, null, 2);
-      return RNFS.mkdir(config.path)
-        .then(() => RNFS.writeFile(keysPath, fileContents, "ascii"))
-        .then(() => generatedKeys);
-    }
-  });
-}
-
 export type SSBClientFunction = {
   (cb: Callback<SBot>): void;
   (opts: object, cb: Callback<SBot>): void;
   (keys?: object | null, opts?: object | null, cb?: Callback<SBot>): void;
-  fetchKeys(config: { path: string }): Promise<any>;
 };
 
 function ssbClient(cb: Callback<SBot>): void;
@@ -157,15 +130,8 @@ function ssbClient(
   } else {
     config = {} as Config;
   }
-
   config.manifest = manifest;
-  const keysPromise = keys ? Promise.resolve(keys) : fetchKeys(config);
-
-  keysPromise.then((actualKeys: object) => {
-    lowerSSBClient(actualKeys, config, cb);
-  });
+  lowerSSBClient(keys, config, cb);
 }
-
-(ssbClient as SSBClientFunction).fetchKeys = fetchKeys;
 
 module.exports = ssbClient as SSBClientFunction;
