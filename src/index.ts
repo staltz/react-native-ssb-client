@@ -12,94 +12,6 @@ export type Config = {
   key: string;
 };
 
-const manifest = {
-  auth: "async",
-  address: "sync",
-  manifest: "sync",
-  get: "async",
-  createFeedStream: "source",
-  createLogStream: "source",
-  messagesByType: "source",
-  createHistoryStream: "source",
-  createUserStream: "source",
-  links: "source",
-  relatedMessages: "async",
-  add: "async",
-  publish: "async",
-  getAddress: "sync",
-  getLatest: "async",
-  latest: "source",
-  latestSequence: "async",
-  whoami: "sync",
-  usage: "sync",
-  plugins: {
-    install: "source",
-    uninstall: "source",
-    enable: "async",
-    disable: "async"
-  },
-  gossip: {
-    peers: "sync",
-    add: "sync",
-    remove: "sync",
-    ping: "duplex",
-    connect: "async",
-    changes: "source",
-    reconnect: "sync"
-  },
-  friends: {
-    get: "async",
-    createFriendStream: "source",
-    hops: "async",
-    stream: "source"
-  },
-  replicate: {
-    changes: "source",
-    upto: "source"
-  },
-  blobs: {
-    get: "source",
-    getSlice: "source",
-    add: "sink",
-    rm: "async",
-    ls: "source",
-    has: "async",
-    size: "async",
-    meta: "async",
-    want: "async",
-    push: "async",
-    changes: "source",
-    createWants: "source"
-  },
-  backlinks: {
-    read: "source"
-  },
-  about: {
-    stream: "source",
-    get: "async"
-  },
-  contacts: {
-    stream: "source",
-    get: "async"
-  },
-  query: {
-    read: "source"
-  },
-  invite: {
-    create: "async",
-    accept: "async",
-    use: "async"
-  },
-  block: {
-    isBlocked: "sync"
-  },
-  private: {
-    publish: "async",
-    unbox: "sync",
-    read: "source"
-  }
-};
-
 export type SSBClientFunction = {
   (cb: Callback<SBot>): void;
   (opts: object, cb: Callback<SBot>): void;
@@ -130,7 +42,6 @@ function ssbClient(
   } else {
     config = {} as Config;
   }
-  config.manifest = manifest;
   lowerSSBClient(keys, config, cb);
 }
 
