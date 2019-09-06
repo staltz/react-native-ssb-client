@@ -92,7 +92,7 @@ ssbClient(keys, manifest)
 
 When setting up the client, you can register *plugins*. These look and feel like `ssb-server` or `secret-stack` plugins, in fact, in many cases they are so similar that a plugin intended for ssb-server might work just fine for react-native-ssb-client!
 
-You can use client-side plugins when you are sure you don't want to run this code in the backend. For instance, a client-side plugin is the perfect place to put a light cache, in order to avoid a request to the backend. See e.g. [ssb-cache-about](https://gitlab.com/staltz/ssb-cached-about).
+You can use client-side plugins when you are sure you don't want to run this code in the backend. For instance, a client-side plugin is the perfect place to put a light cache, in order to avoid a request to the backend. See e.g. [ssb-cached-about](https://gitlab.com/staltz/ssb-cached-about).
 
 Below is a simple plugin that just publishes a greeting message in the DB:
 
