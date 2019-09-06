@@ -81,6 +81,8 @@ ssbClient(keys, manifest)
   })
 ```
 
+**NOTE!** This library does **not** start the backend, you have to do that yourself by important `nodejs-mobile-react-native` and calling `nodejs.start()` or `startProject()`.
+
 ### API
 
 - `ssbClient(keys, manifest)`: this configures your muxrpc client, where `keys` is the path to the user's SSB `secret` file, and `manifest` is an object describing the muxrpc APIs we want
