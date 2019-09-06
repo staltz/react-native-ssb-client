@@ -1,48 +1,85 @@
-const lowerSSBClient = require("ssb-client");
-const createConfig = require("ssb-config/inject");
+const pull = require('pull-stream');
+const nodejs = require('nodejs-mobile-react-native');
+const rnChannelPlugin = require('multiserver-rn-channel');
+const noAuthPlugin = require('multiserver/plugins/noauth');
+const MultiServer = require('multiserver');
+const muxrpc = require('muxrpc');
 
-export type Callback<T> = (err: any, value: T) => void;
-export type SBot = any;
-export type Config = {
-  path: string;
-  caps: string;
-  remote: any;
-  port: number;
-  manifest: any;
-  key: string;
-};
+export type Callback<T> = (err: any, value?: T) => void;
 
-export type SSBClientFunction = {
-  (cb: Callback<SBot>): void;
-  (opts: object, cb: Callback<SBot>): void;
-  (keys?: object | null, opts?: object | null, cb?: Callback<SBot>): void;
-};
-
-function ssbClient(cb: Callback<SBot>): void;
-function ssbClient(opts: object, cb: Callback<SBot>): void;
-function ssbClient(
-  keys?: object | null,
-  opts?: object | null,
-  cb?: Callback<SBot>
-): void {
-  if (typeof keys == "function") {
-    cb = keys;
-    keys = null;
-    opts = null;
-  } else if (typeof opts == "function") {
-    cb = opts;
-    opts = keys;
-    keys = null;
-  }
-  let config: Config;
-  if (typeof opts === "string" || opts == null || !keys) {
-    config = createConfig((typeof opts === "string" ? opts : null) || "ssb");
-  } else if (opts && typeof opts === "object") {
-    config = opts as Config;
-  } else {
-    config = {} as Config;
-  }
-  lowerSSBClient(keys, config, cb);
+function toSodiumKeys(keys: any) {
+  if (!keys || !keys.public) return null;
+  return {
+    publicKey: Buffer.from(keys.public.replace('.ed25519', ''), 'base64'),
+    secretKey: Buffer.from(keys.private.replace('.ed25519', ''), 'base64'),
+  };
 }
 
-module.exports = ssbClient as SSBClientFunction;
+function objMapDeep(origin: any, transform: (s: string) => string): any {
+  return Object.keys(origin).reduce(
+    (acc, key) => {
+      if (typeof origin[key] === 'object') {
+        acc[key] = objMapDeep(origin[key], transform);
+      } else {
+        acc[key] = transform(origin[key]);
+      }
+      return acc;
+    },
+    {} as any,
+  );
+}
+
+function syncToAsync(str: string): string {
+  return str === 'sync' ? 'async' : str;
+}
+
+function applyPlugins<T = any>(client: T, plugins: Array<any>): T {
+  for (const plugin of plugins) {
+    (client as any)[plugin.name] = plugin.init(client);
+  }
+  return client;
+}
+
+export default function ssbClient(keys: any, manifest: any) {
+  const sanitizedManifest = objMapDeep(manifest, syncToAsync);
+
+  const plugins: Array<any> = [];
+
+  function builder(cb: Callback<any>) {
+    const ms = MultiServer([
+      [
+        rnChannelPlugin(nodejs.channel),
+        noAuthPlugin({keys: toSodiumKeys(keys)}),
+      ],
+    ]);
+
+    const address = 'channel~noauth:' + keys.public.replace('.ed25519', '');
+
+    ms.client(address, (err: any, stream: any) => {
+      if (err) {
+        cb(err);
+      } else {
+        const client = muxrpc(sanitizedManifest, null)();
+        pull(stream, client.createStream(), stream);
+        const clientPlusPlugins = applyPlugins(client, plugins);
+        cb(null, clientPlusPlugins);
+      }
+    });
+  }
+
+  builder.use = function use(plugin: any) {
+    plugins.push(plugin);
+    return builder;
+  };
+
+  builder.callPromise = function callPromise() {
+    return new Promise<any>((resolve, reject) => {
+      builder((err: any, val: any) => {
+        if (err) reject(err);
+        else resolve(val);
+      });
+    });
+  };
+
+  return builder;
+}
