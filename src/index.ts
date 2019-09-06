@@ -40,7 +40,13 @@ function applyPlugins<T = any>(client: T, plugins: Array<any>): T {
   return client;
 }
 
-export default function ssbClient(keys: any, manifest: any) {
+export interface SSBClient {
+  (cb: Callback<any>): void;
+  use(plugin: any): SSBClient;
+  callPromise(): Promise<any>;
+}
+
+export default function ssbClient(keys: any, manifest: any): SSBClient {
   const sanitizedManifest = objMapDeep(manifest, syncToAsync);
 
   const plugins: Array<any> = [];
