@@ -29,6 +29,12 @@ function objMapDeep(origin: any, transform: (s: string) => string): any {
   );
 }
 
+function pipe(first: any, ...cbs: Array<(x: any) => any>) {
+  let res = first;
+  for (let i = 0, n = cbs.length; i < n; i++) res = cbs[i](res);
+  return res;
+}
+
 function syncToAsync(str: string): string {
   return str === 'sync' ? 'async' : str;
 }
@@ -37,6 +43,11 @@ function applyPlugins<T = any>(client: T, plugins: Array<any>): T {
   for (const plugin of plugins) {
     (client as any)[plugin.name] = plugin.init(client);
   }
+  return client;
+}
+
+function hackId<T = any>(client: T, keys: any): T {
+  (client as any).id = keys.id;
   return client;
 }
 
@@ -65,10 +76,13 @@ export default function ssbClient(keys: any, manifest: any): SSBClient {
       if (err) {
         cb(err);
       } else {
-        const client = muxrpc(sanitizedManifest, null)();
+        const client = pipe(
+          muxrpc(sanitizedManifest, null)(),
+          c => hackId(c, keys),
+          c => applyPlugins(c, plugins),
+        );
         pull(stream, client.createStream(), stream);
-        const clientPlusPlugins = applyPlugins(client, plugins);
-        cb(null, clientPlusPlugins);
+        cb(null, client);
       }
     });
   }
