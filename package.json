@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "pull-stream": "^3.6.14",
+    "react-native-ssb-client-keys": "1.2.0",
     "multiserver-rn-channel": "~1.3.0",
     "multiserver": "^3.4.0",
     "muxrpc": "^6.4.2"

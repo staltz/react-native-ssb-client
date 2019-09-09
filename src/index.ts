@@ -1,5 +1,6 @@
 const pull = require('pull-stream');
 const nodejs = require('nodejs-mobile-react-native');
+const ssbKeys = require('react-native-ssb-client-keys');
 const rnChannelPlugin = require('multiserver-rn-channel');
 const noAuthPlugin = require('multiserver/plugins/noauth');
 const MultiServer = require('multiserver');
@@ -57,12 +58,29 @@ export interface SSBClient {
   callPromise(): Promise<any>;
 }
 
-export default function ssbClient(keys: any, manifest: any): SSBClient {
+export type Keys = {
+  id: string;
+  public: string;
+  private: string;
+};
+
+function loadKeys(path: string): Promise<Keys> {
+  return new Promise<any>((resolve, reject) => {
+    ssbKeys.load(path, (err: any, val: Keys) => {
+      if (err) reject(err);
+      else resolve(val);
+    });
+  }).catch(() => loadKeys(path));
+}
+
+export default function ssbClient(k: string | Keys, manifest: any): SSBClient {
   const sanitizedManifest = objMapDeep(manifest, syncToAsync);
 
   const plugins: Array<any> = [];
 
-  function builder(cb: Callback<any>) {
+  async function builder(cb: Callback<any>) {
+    const keys = typeof k === 'string' ? await loadKeys(k) : k;
+
     const ms = MultiServer([
       [
         rnChannelPlugin(nodejs.channel),
