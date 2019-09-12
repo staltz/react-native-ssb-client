@@ -6,7 +6,8 @@ Similar to [ssb-client](https://github.com/ssbc/ssb-client), but for React Nativ
 
 Prerequisites:
 
-- React Native 0.59 or higher
+- React Native 0.60 or higher
+  - React Native 0.59 and lower are supported only in `react-native-ssb-client` version 5.0.0
 - [nodejs-mobile-react-native](https://github.com/janeasystems/nodejs-mobile-react-native) as a dependency in your React Native project
 - You can provide this API the following arguments:
   - File path to your app's SSB keys
