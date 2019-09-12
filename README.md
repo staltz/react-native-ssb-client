@@ -134,6 +134,10 @@ To use it:
    })
 ```
 
+### Note
+
+Some dependencies, such as `events` and `assert`, are in this library just to polyfill necessary Node.js utilities that are used in muxrpc and multiserver — important dependencies of this library.
+
 ## License
 
 MIT
