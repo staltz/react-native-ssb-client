@@ -20,7 +20,8 @@
     "typescript": "3.6.x"
   },
   "peerDependencies": {
-    "nodejs-mobile-react-native": "^0.4.0"
+    "nodejs-mobile-react-native": "^0.4.0",
+    "react-native-ssb-shims": ">=4.0.0"
   },
   "dependencies": {
     "assert": "~2.0.0",

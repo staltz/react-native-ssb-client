@@ -9,9 +9,7 @@ Prerequisites:
 - React Native 0.60 or higher
   - React Native 0.59 and lower are supported only in `react-native-ssb-client` version 5.0.0
 - [nodejs-mobile-react-native](https://github.com/janeasystems/nodejs-mobile-react-native) as a dependency in your React Native project
-- You can provide this API the following arguments:
-  - File path to your app's SSB keys
-  - Manifest object
+- [react-native-ssb-shims](https://github.com/ssbc/react-native-ssb-shims) as a dependency in your React Native project
 
 ```
 npm install --save react-native-ssb-client
@@ -68,7 +66,7 @@ In your **backend** code (your nodejs-mobile project), make sure that you have s
    .call(null, config);
 ```
 
-In your **frontend** code is where you import this library:
+In your **frontend** code we assume you have access to: (1) the file path to your app's SSB keys, (2) the muxrpc manifest object. Then, in your frontend code you import this library:
 
 ```js
 import ssbClient from 'react-native-ssb-client'
