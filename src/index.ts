@@ -1,18 +1,40 @@
 const pull = require('pull-stream');
 const nodejs = require('nodejs-mobile-react-native');
-const ssbKeys = require('react-native-ssb-client-keys');
 const rnChannelPlugin = require('multiserver-rn-channel');
-const noAuthPlugin = require('multiserver/plugins/noauth');
 const MultiServer = require('multiserver');
 const muxrpc = require('muxrpc');
 
 export type Callback<T> = (err: any, value?: T) => void;
 
-function toSodiumKeys(keys: any) {
-  if (!keys || !keys.public) return null;
+export interface SSBClient {
+  (cb: Callback<any>): void;
+  use(plugin: any): SSBClient;
+  callPromise(): Promise<any>;
+}
+
+// Forked from multiserver/plugins/noauth because client-side we don't need
+// to pass the public key to this plugin, only server-side we need to
+function noAuthPlugin() {
   return {
-    publicKey: Buffer.from(keys.public.replace('.ed25519', ''), 'base64'),
-    secretKey: Buffer.from(keys.private.replace('.ed25519', ''), 'base64'),
+    name: 'noauth',
+    create() {
+      return (stream: any, cb: any) => {
+        cb(null, {
+          remote: '',
+          auth: {allow: null, deny: null},
+          source: stream.source,
+          sink: stream.sink,
+          address: 'noauth',
+        });
+      };
+    },
+    parse(str: string) {
+      if (str === 'noauth') return {};
+      else return undefined;
+    },
+    stringify() {
+      return 'noauth';
+    },
   };
 }
 
@@ -30,12 +52,6 @@ function objMapDeep(origin: any, transform: (s: string) => string): any {
   );
 }
 
-function pipe(first: any, ...cbs: Array<(x: any) => any>) {
-  let res = first;
-  for (let i = 0, n = cbs.length; i < n; i++) res = cbs[i](res);
-  return res;
-}
-
 function syncToAsync(str: string): string {
   return str === 'sync' ? 'async' : str;
 }
@@ -47,61 +63,31 @@ function applyPlugins<T = any>(client: T, plugins: Array<any>): T {
   return client;
 }
 
-function hackId<T = any>(client: T, keys: any): T {
-  (client as any).id = keys.id;
-  return client;
+function hackId(client: any, cb: Callback<any>) {
+  client.whoami((err: any, val: any) => {
+    if (err) return cb(err);
+
+    client.id = val.id;
+    cb(null, client);
+  });
 }
 
-export interface SSBClient {
-  (cb: Callback<any>): void;
-  use(plugin: any): SSBClient;
-  callPromise(): Promise<any>;
-}
-
-export type Keys = {
-  id: string;
-  public: string;
-  private: string;
-};
-
-function loadKeys(path: string): Promise<Keys> {
-  return new Promise<any>((resolve, reject) => {
-    ssbKeys.load(path, (err: any, val: Keys) => {
-      if (err) reject(err);
-      else resolve(val);
-    });
-  }).catch(() => loadKeys(path));
-}
-
-export default function ssbClient(k: string | Keys, manifest: any): SSBClient {
-  const sanitizedManifest = objMapDeep(manifest, syncToAsync);
+export default function ssbClient(manifest: any): SSBClient {
+  const manifestOk = objMapDeep(manifest, syncToAsync);
 
   const plugins: Array<any> = [];
 
-  async function builder(cb: Callback<any>) {
-    const keys = typeof k === 'string' ? await loadKeys(k) : k;
+  function builder(cb: Callback<any>) {
+    const ms = MultiServer([[rnChannelPlugin(nodejs.channel), noAuthPlugin()]]);
 
-    const ms = MultiServer([
-      [
-        rnChannelPlugin(nodejs.channel),
-        noAuthPlugin({keys: toSodiumKeys(keys)}),
-      ],
-    ]);
-
-    const address = 'channel~noauth:' + keys.public.replace('.ed25519', '');
+    const address = 'channel~noauth';
 
     ms.client(address, (err: any, stream: any) => {
-      if (err) {
-        cb(err);
-      } else {
-        const client = pipe(
-          muxrpc(sanitizedManifest, null)(),
-          c => hackId(c, keys),
-          c => applyPlugins(c, plugins),
-        );
-        pull(stream, client.createStream(), stream);
-        cb(null, client);
-      }
+      if (err) return cb(err);
+
+      const client = applyPlugins(muxrpc(manifestOk, null)(), plugins);
+      pull(stream, client.createStream(), stream);
+      hackId(client, cb);
     });
   }
 

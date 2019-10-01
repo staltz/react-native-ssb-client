@@ -66,14 +66,14 @@ In your **backend** code (your nodejs-mobile project), make sure that you have s
    .call(null, config);
 ```
 
-In your **frontend** code we assume you have access to: (1) the file path to your app's SSB keys, (2) the muxrpc manifest object. Then, in your frontend code you import this library:
+In your **frontend** code we assume you have access to the muxrpc manifest object. Then, in your frontend code you import this library:
 
 ```js
 import ssbClient from 'react-native-ssb-client'
 
 // ...
 
-ssbClient(keys, manifest)
+ssbClient(manifest)
   .use(somePlugin) // optional
   .call(null, (err, ssb) => {
     // You can now use `ssb` with all the muxrpc APIs from the backend
@@ -84,7 +84,7 @@ ssbClient(keys, manifest)
 
 ### API
 
-- `ssbClient(keys, manifest)`: this configures your muxrpc client, where `keys` is the path to the user's SSB `secret` file, and `manifest` is an object describing the muxrpc APIs we want
+- `ssbClient(manifest)`: this configures your muxrpc client, where `manifest` is an object describing the muxrpc APIs we want
 - `.use(plugin)`: call this to attach a client-side `plugin` to your final muxrpc object. Plugins are `{name, init}` objects, where `name` is a string, and `init(ssb): void` is a function; much like secret-stack plugins are
 - `.call(null, cb)`: call this to start using the muxrpc, it will be provided to you in the callback `cb`
 - `.callPromise()`: as an alternative to the above, you can call this to get a Promise that resolves with the muxrpc `ssb` object
@@ -114,7 +114,7 @@ const greeterPlugin = {
 To install it:
 
 ```diff
- ssbClient(keys, manifest)
+ ssbClient(manifest)
 +  .use(greeterPlugin)
    .call(null, (err, ssb) => {
 
@@ -124,7 +124,7 @@ To install it:
 To use it:
 
 ```diff
- ssbClient(keys, manifest)
+ ssbClient(manifest)
    .use(greeterPlugin)
    .call(null, (err, ssb) => {
 +    // Will publish a message on our feed:
