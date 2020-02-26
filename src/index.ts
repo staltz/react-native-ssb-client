@@ -6,10 +6,34 @@ const muxrpc = require('muxrpc');
 
 export type Callback<T> = (err: any, value?: T) => void;
 
-export interface SSBClient {
-  (cb: Callback<any>): void;
-  use(plugin: any): SSBClient;
-  callPromise(): Promise<any>;
+export type AnyFunction = (...args: Array<any>) => any;
+
+export type ClientAPI<M> = {id: string} & {
+  [key in keyof M]: M[key] extends string
+    ? AnyFunction
+    : {
+        [key2 in keyof M[key]]: AnyFunction;
+      };
+};
+
+export type Plugin<N, I extends (...args: any) => any> = {
+  name: N;
+  init: I;
+};
+
+export interface SSBClient<M> {
+  (cb: Callback<ClientAPI<M>>): void;
+  use<N extends keyof any, I extends (...args: any) => any>(
+    plugin: Plugin<N, I>,
+  ): SSBClient<
+    M &
+      {
+        [NN in N]: {
+          [P in keyof ReturnType<I>]: string;
+        };
+      }
+  >;
+  callPromise(): Promise<ClientAPI<M>>;
 }
 
 // Forked from multiserver/plugins/noauth because client-side we don't need
@@ -18,7 +42,7 @@ function noAuthPlugin() {
   return {
     name: 'noauth',
     create() {
-      return (stream: any, cb: any) => {
+      return (stream: any, cb: Callback<Record<string, any>>) => {
         cb(null, {
           remote: '',
           auth: {allow: null, deny: null},
@@ -39,17 +63,14 @@ function noAuthPlugin() {
 }
 
 function objMapDeep(origin: any, transform: (s: string) => string): any {
-  return Object.keys(origin).reduce(
-    (acc, key) => {
-      if (typeof origin[key] === 'object') {
-        acc[key] = objMapDeep(origin[key], transform);
-      } else {
-        acc[key] = transform(origin[key]);
-      }
-      return acc;
-    },
-    {} as any,
-  );
+  return Object.keys(origin).reduce((acc, key) => {
+    if (typeof origin[key] === 'object') {
+      acc[key] = objMapDeep(origin[key], transform);
+    } else {
+      acc[key] = transform(origin[key]);
+    }
+    return acc;
+  }, {} as any);
 }
 
 function syncToAsync(str: string): string {
@@ -72,7 +93,7 @@ function hackId(client: any, cb: Callback<any>) {
   });
 }
 
-export default function ssbClient(manifest: any): SSBClient {
+export default function ssbClient<M>(manifest: M): SSBClient<M> {
   const manifestOk = objMapDeep(manifest, syncToAsync);
 
   const plugins: Array<any> = [];
